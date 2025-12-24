@@ -34,7 +34,7 @@
             width: 100%;
             height: 100%;
             z-index: 10;
-            pointer-events: none; /* 让鼠标事件穿透到 Canvas */
+            pointer-events: none;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -59,7 +59,6 @@
             animation: glow 2s ease-in-out infinite alternate;
         }
 
-        /* 昵称样式调整 */
         .nicknames {
             margin-top: 10px;
             font-size: 1.1rem;
@@ -75,19 +74,19 @@
         /* 按钮样式 */
         .interactive-area {
             margin-bottom: 10vh;
-            pointer-events: auto; /* 恢复按钮点击 */
+            pointer-events: auto;
             z-index: 20;
         }
 
         .gift-btn {
-            background: linear-gradient(135deg, #2c3e50, #000000);
-            color: #ffd700;
-            border: 1px solid #ffd700;
+            background: linear-gradient(135deg, #c0392b, #8e44ad); /* 更炫酷的渐变 */
+            color: #fff;
+            border: 2px solid #f1c40f;
             padding: 15px 40px;
             font-size: 1.1rem;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -95,7 +94,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            letter-spacing: 1px;
+            font-weight: bold;
         }
 
         .gift-btn::before {
@@ -105,7 +104,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             transition: 0.5s;
         }
 
@@ -114,13 +113,12 @@
         }
 
         .gift-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.5);
-            background: #1a1a1a;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.6);
         }
 
         .gift-btn:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
 
         /* 情书模态框 */
@@ -130,8 +128,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
             z-index: 100;
             display: flex;
             justify-content: center;
@@ -152,14 +150,15 @@
             width: 85%;
             max-width: 500px;
             padding: 40px;
-            border-radius: 5px;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
             transform: translateY(50px) scale(0.9);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-align: left;
             position: relative;
             background-image: linear-gradient(#e0e0e0 1px, transparent 1px);
             background-size: 100% 30px;
+            border: 1px solid #e0e0e0;
         }
 
         .modal-overlay.active .letter-card {
@@ -168,8 +167,8 @@
 
         .letter-content h3 {
             font-family: 'Great Vibes', cursive;
-            font-size: 2rem;
-            margin-bottom: 25px;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
             color: #c0392b;
             text-align: center;
             border-bottom: 2px solid #c0392b;
@@ -188,6 +187,7 @@
             color: #c0392b;
             font-weight: bold;
             padding: 0 2px;
+            background: rgba(255, 235, 59, 0.3); /* 高亮背景 */
         }
 
         .close-btn {
@@ -232,7 +232,7 @@
         <div class="title-container">
             <h1>Merry Christmas</h1>
             <div class="nicknames">
-                致：我的小树懒 · 玛卡巴卡女士 · Zozo老师
+                致：我的小树懒
             </div>
         </div>
 
@@ -262,17 +262,13 @@
         const ctx = canvas.getContext('2d');
         
         let width, height;
-        let particles = []; // 树和飞星
-        let snow = []; // 背景雪花
-        let mouseTrail = []; // 新增：鼠标拖尾粒子数组
+        let particles = []; 
+        let snow = []; 
+        let mouseTrail = []; 
         
         let mouseX = 0;
         let targetRotation = 0;
         let currentRotation = 0;
-
-        // 鼠标实际坐标，用于拖尾
-        let realMouseX = 0;
-        let realMouseY = 0;
 
         function resize() {
             width = canvas.width = window.innerWidth;
@@ -281,69 +277,61 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // 统一处理鼠标和触摸移动
         function handleMove(x, y) {
-            realMouseX = x;
-            realMouseY = y;
-            
-            // 3D旋转交互计算
+            // 3D旋转交互
             mouseX = (x - width / 2) / width; 
             targetRotation = mouseX * 2;
 
-            // 新增：产生拖尾粒子
-            // 每次移动产生几个粒子，营造浓密感
+            // 拖尾
             for(let i=0; i<3; i++) {
                 mouseTrail.push(new TrailParticle(x, y));
             }
         }
 
-        document.addEventListener('mousemove', (e) => {
-            handleMove(e.clientX, e.clientY);
-        });
+        document.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        document.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY));
 
-        document.addEventListener('touchmove', (e) => {
-            handleMove(e.touches[0].clientX, e.touches[0].clientY);
-        });
-
-        // 新增：拖尾粒子类
+        // 拖尾粒子
         class TrailParticle {
             constructor(x, y) {
-                this.x = x + (Math.random() - 0.5) * 10; // 稍微随机偏移
+                this.x = x + (Math.random() - 0.5) * 10;
                 this.y = y + (Math.random() - 0.5) * 10;
-                this.size = Math.random() * 3 + 1;
-                this.life = 1.0; // 生命值 1.0 -> 0.0
-                this.decay = 0.02 + Math.random() * 0.03; // 衰减速度
+                this.size = Math.random() * 4 + 2;
+                this.life = 1.0;
+                this.decay = 0.03 + Math.random() * 0.03;
                 this.speedX = (Math.random() - 0.5) * 2;
                 this.speedY = (Math.random() - 0.5) * 2;
-                // 颜色：金色或白色闪光
-                this.color = Math.random() > 0.5 ? `rgba(255, 215, 0, ` : `rgba(255, 255, 255, `;
+                this.color = `hsl(${Math.random()*60 + 20}, 100%, 70%)`; // 金黄色系
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.life -= this.decay;
-                this.size *= 0.95; // 逐渐变小
+                this.size *= 0.92;
             }
-
             draw() {
-                ctx.fillStyle = this.color + this.life + ')';
+                if (this.size <= 0) return;
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = Math.max(0, this.life);
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.globalAlpha = 1;
             }
         }
 
-        // 核心粒子类 (树、树干、星星、飞星)
+        // 核心粒子类 (扩展了多种类型：礼物、雪人、Emoji等)
         class Particle {
-            constructor(type, xParam, yParam) {
+            constructor(type, xParam, yParam, extraData) {
                 this.type = type; 
                 this.angle = 0;
                 this.radius = 0;
                 this.yRatio = 0;
                 this.size = 0;
+                this.extraData = extraData || {}; // 存储额外数据（如emoji内容，颜色）
                 this.speed = Math.random() * 0.02 + 0.005;
 
+                // 树干
                 if (type === 'trunk') {
                     this.yRatio = yParam; 
                     this.angle = Math.random() * Math.PI * 2; 
@@ -351,52 +339,81 @@
                     const shade = Math.floor(Math.random() * 40 + 20);
                     this.color = `rgb(${shade + 40}, ${shade + 10}, ${shade})`;
                 } 
+                // 树叶
                 else if (type === 'leaf') {
                     this.yRatio = yParam;
                     const armIndex = xParam;
                     const arms = 8;
                     const twists = 5;
                     this.angle = (armIndex / arms) * Math.PI * 2 + this.yRatio * Math.PI * 2 * twists + (Math.random() * 0.1);
-                    this.size = Math.random() * 2 + 1.5;
+                    this.size = Math.random() * 2.5 + 1.5;
                     const rand = Math.random();
-                    if (rand > 0.92) this.color = '#ff3e3e';
-                    else if (rand > 0.88) this.color = '#ffd700';
-                    else if (rand > 0.82) this.color = '#ffffff';
+                    if (rand > 0.92) this.color = '#e74c3c'; // 红
+                    else if (rand > 0.88) this.color = '#f1c40f'; // 金
+                    else if (rand > 0.82) this.color = '#ffffff'; // 白
                     else {
                         const hue = 140 + Math.random() * 30;
                         const light = 30 + Math.random() * 30;
                         this.color = `hsl(${hue}, 80%, ${light}%)`;
                     }
                 }
-                else if (type === 'star') { // 树顶星星
+                // 星星
+                else if (type === 'star') { 
                     this.yRatio = 1.02;
                     this.angle = 0;
-                    this.size = 10;
-                    this.color = '#ffffaa';
+                    this.size = 12;
+                    this.color = '#f1c40f';
                 }
-                else if (type === 'flyer') { // 新增：环绕飞星
-                    this.yRatio = yParam; // 高度
+                // 飞星
+                else if (type === 'flyer') { 
+                    this.yRatio = yParam;
                     this.angle = Math.random() * Math.PI * 2;
-                    this.size = Math.random() * 2 + 1.5; // 飞星大小
-                    this.speed = 0.02 + Math.random() * 0.04; // 速度差异更大
-                    // 颜色随机：金色或亮白
-                    this.color = Math.random() > 0.5 ? '#ffffaa' : '#ffffff';
-                    this.orbitOffset = Math.random() * Math.PI * 2; // 轨道相位
-                    this.radiusMultiplier = 0.8 + Math.random() * 1.2; // 半径随机范围扩大：有的近有的远
+                    this.size = Math.random() * 2 + 1.5;
+                    this.speed = 0.02 + Math.random() * 0.04;
+                    this.color = Math.random() > 0.5 ? '#f1c40f' : '#ffffff';
+                    this.orbitOffset = Math.random() * Math.PI * 2; 
+                    this.radiusMultiplier = 0.8 + Math.random() * 1.2;
+                }
+                // 地面装饰：礼物盒
+                else if (type === 'gift') {
+                    this.yRatio = -0.22; // 放在树根底部
+                    this.angle = xParam; // 分散在周围
+                    this.distFromCenter = 0.2 + Math.random() * 0.15; // 距离中心的距离
+                    this.size = 10 + Math.random() * 8; // 盒子大小
+                    this.color = `hsl(${Math.random() * 360}, 70%, 60%)`; // 随机鲜艳颜色
+                }
+                // 地面装饰：雪人
+                else if (type === 'snowman') {
+                    this.yRatio = -0.22;
+                    this.angle = xParam;
+                    this.distFromCenter = 0.25;
+                    this.size = 12; 
+                }
+                // 地面装饰：Emoji精灵 (小鹿, 糖果等)
+                else if (type === 'sprite') {
+                    this.yRatio = yParam; // 高度可变
+                    this.angle = xParam;
+                    this.distFromCenter = 0.15 + Math.random() * 0.2;
+                    this.content = extraData.content;
+                    this.size = 14; 
                 }
             }
 
             update() {
-                this.angle += this.speed; // 自转
+                if (this.type !== 'gift' && this.type !== 'snowman' && this.type !== 'sprite') {
+                    this.angle += this.speed; 
+                } else {
+                    // 地面物体虽然不自转，但需要跟随场景旋转
+                }
                 
                 let currentRadius = 0;
                 let y3d = 0;
 
                 const maxTreeWidth = Math.min(width, height) * 0.35;
-                const trunkWidth = maxTreeWidth * 0.15;
-
+                
+                // 计算 3D 坐标
                 if (this.type === 'trunk') {
-                    currentRadius = trunkWidth * (0.8 + Math.random() * 0.2);
+                    currentRadius = maxTreeWidth * 0.15 * (0.8 + Math.random() * 0.2);
                     y3d = (this.yRatio - 0.5) * height * 0.8;
                 } else if (this.type === 'leaf') {
                     currentRadius = maxTreeWidth * (1 - this.yRatio);
@@ -405,15 +422,16 @@
                     currentRadius = 0;
                     y3d = (this.yRatio - 0.5) * height * 0.8;
                 } else if (this.type === 'flyer') {
-                    // 飞星逻辑：
-                    // 半径现在是随机的，形成云雾状
                     currentRadius = maxTreeWidth * this.radiusMultiplier;
-                    // 高度做正弦波运动，上下浮动幅度更大
                     y3d = (this.yRatio - 0.5) * height * 0.8 + Math.sin(Date.now() * 0.001 + this.orbitOffset) * (height * 0.15);
                     this.angle += 0.01; 
+                } 
+                // 地面物体逻辑
+                else if (this.type === 'gift' || this.type === 'snowman' || this.type === 'sprite') {
+                    currentRadius = maxTreeWidth * this.distFromCenter;
+                    y3d = (this.yRatio - 0.5) * height * 0.8;
                 }
 
-                // 3D 旋转投影
                 const rotAngle = this.angle + currentRotation;
                 const x3d = Math.cos(rotAngle) * currentRadius;
                 const z3d = Math.sin(rotAngle) * currentRadius;
@@ -426,34 +444,76 @@
                 this.projSize = this.size * scale;
                 this.z = z3d; 
                 this.alpha = scale;
-                
-                if (this.type === 'trunk') this.alpha *= 0.8;
             }
 
             draw() {
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                
-                // 光晕效果
-                if (this.type === 'star' || this.type === 'flyer') {
-                    ctx.shadowBlur = this.type === 'star' ? 20 : 10;
-                    ctx.shadowColor = this.color;
-                } else {
-                    ctx.shadowBlur = 0;
-                }
+                // BUG FIX: 防止 radius 为负数导致的 IndexSizeError
+                // 当物体在摄像机后面时，scale可能为负数，导致projSize为负
+                if (this.projSize <= 0 || this.alpha <= 0) return;
 
-                ctx.beginPath();
-                ctx.arc(this.projX, this.projY, this.projSize, 0, Math.PI * 2);
-                ctx.fill();
+                // BUG FIX: 限制 alpha 在 0-1 之间
+                const safeAlpha = Math.max(0, Math.min(1, this.alpha));
+                ctx.globalAlpha = safeAlpha;
                 
-                // 如果是飞星，画一个小拖尾（简单版）
-                if (this.type === 'flyer') {
+                if (this.type === 'gift') {
+                    // 绘制礼物盒 (正方形 + 丝带)
+                    const s = this.projSize;
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(this.projX - s/2, this.projY - s/2, s, s);
+                    
+                    // 丝带
+                    ctx.fillStyle = '#fff'; // 白丝带
+                    ctx.fillRect(this.projX - s/6, this.projY - s/2, s/3, s); // 竖丝带
+                    ctx.fillRect(this.projX - s/2, this.projY - s/6, s, s/3); // 横丝带
+                } 
+                else if (this.type === 'snowman') {
+                    // 绘制雪人 (两个白球 + 鼻子)
+                    const s = this.projSize;
+                    ctx.fillStyle = '#fff';
+                    // 身体
                     ctx.beginPath();
-                    ctx.moveTo(this.projX, this.projY);
-                    // 简单的反向延伸
-                    ctx.lineTo(this.projX - 10 * this.alpha, this.projY); 
-                    ctx.strokeStyle = `rgba(255, 255, 170, ${this.alpha * 0.5})`;
-                    ctx.stroke();
+                    ctx.arc(this.projX, this.projY, s * 0.8, 0, Math.PI*2);
+                    ctx.fill();
+                    // 头
+                    ctx.beginPath();
+                    ctx.arc(this.projX, this.projY - s * 1.2, s * 0.6, 0, Math.PI*2);
+                    ctx.fill();
+                    // 鼻子 (红点代替)
+                    ctx.fillStyle = 'orange';
+                    ctx.beginPath();
+                    ctx.arc(this.projX, this.projY - s * 1.2, s * 0.2, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                else if (this.type === 'sprite') {
+                    // 绘制 Emoji
+                    ctx.font = `${this.projSize}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(this.content, this.projX, this.projY);
+                }
+                else {
+                    // 原有粒子绘制
+                    ctx.fillStyle = this.color;
+                    if (this.type === 'star' || this.type === 'flyer') {
+                        ctx.shadowBlur = this.type === 'star' ? 20 : 10;
+                        ctx.shadowColor = this.color;
+                    } else {
+                        ctx.shadowBlur = 0;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(this.projX, this.projY, this.projSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (this.type === 'flyer') {
+                        ctx.beginPath();
+                        ctx.moveTo(this.projX, this.projY);
+                        // 保护：确保 lineTo 坐标有效
+                        const tailLength = Math.max(0, 10 * safeAlpha);
+                        ctx.lineTo(this.projX - tailLength, this.projY); 
+                        ctx.strokeStyle = `rgba(255, 255, 170, ${safeAlpha * 0.5})`;
+                        ctx.stroke();
+                    }
                 }
                 
                 ctx.shadowBlur = 0;
@@ -462,9 +522,7 @@
         }
 
         class Snow {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * -height;
@@ -489,27 +547,42 @@
             particles = [];
             snow = [];
             
-            // 1. 生成树干
+            // 1. 树干
             for (let i = 0; i < 300; i++) {
-                const y = -0.2 + Math.random() * 0.2;
-                particles.push(new Particle('trunk', 0, y));
+                particles.push(new Particle('trunk', 0, -0.2 + Math.random() * 0.2));
             }
 
-            // 2. 生成螺旋树叶
-            const particleCount = 1800; 
-            for (let i = 0; i < particleCount; i++) {
-                const y = Math.pow(i / particleCount, 0.9);
+            // 2. 树叶
+            for (let i = 0; i < 1800; i++) {
+                const y = Math.pow(i / 1800, 0.9);
                 const arm = i % 8;
                 particles.push(new Particle('leaf', arm, y));
             }
             
-            // 3. 树顶星星
+            // 3. 树顶星
             particles.push(new Particle('star', 0, 1.0));
 
-            // 4. 新增：环绕飞星 (一大堆，60颗)
+            // 4. 飞星
             for(let i=0; i<60; i++) {
-                // yParam 随机分布在树的周围
                 particles.push(new Particle('flyer', 0, Math.random() * 1.2));
+            }
+
+            // 5. 新增：地面礼物盒 (8个)
+            for(let i=0; i<8; i++) {
+                const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.5;
+                particles.push(new Particle('gift', angle, 0));
+            }
+
+            // 6. 新增：雪人 (1个)
+            particles.push(new Particle('snowman', Math.PI * 0.2, 0));
+
+            // 7. 新增：Emoji 精灵 (装饰品：鹿、铃铛、糖果)
+            const emojis = ['🦌', '🐿️', '🔔', '🍬', '🎄', '🎁'];
+            for(let i=0; i<12; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const y = -0.2 + Math.random() * 0.5; // 分布在树的下半部分
+                const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                particles.push(new Particle('sprite', angle, y, { content: emoji }));
             }
 
             // 雪花
@@ -521,7 +594,6 @@
         function animate() {
             ctx.clearRect(0, 0, width, height);
             
-            // 背景
             const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, height);
             gradient.addColorStop(0, '#0a1a2a');
             gradient.addColorStop(1, '#000000');
@@ -531,23 +603,17 @@
             currentRotation += (targetRotation - currentRotation) * 0.05;
             currentRotation += 0.005;
 
-            // 绘制雪花
             snow.forEach(s => { s.update(); s.draw(); });
 
-            // 绘制鼠标拖尾
-            // 倒序遍历以便删除
             for (let i = mouseTrail.length - 1; i >= 0; i--) {
                 let p = mouseTrail[i];
                 p.update();
                 p.draw();
-                if (p.life <= 0) {
-                    mouseTrail.splice(i, 1);
-                }
+                if (p.life <= 0) mouseTrail.splice(i, 1);
             }
 
-            // 绘制树和飞星
             particles.forEach(p => p.update());
-            particles.sort((a, b) => b.z - a.z); // 深度排序，飞星会自动穿插
+            particles.sort((a, b) => b.z - a.z);
             particles.forEach(p => p.draw());
 
             requestAnimationFrame(animate);
